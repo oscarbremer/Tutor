@@ -6,17 +6,21 @@ namespace Tutor.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IQuestionService _questionService;
+        //private readonly IQuestionService _questionService;
 
-        public HomeController(IQuestionService questionService)
+        //public HomeController(IQuestionService questionService)
+        //{
+        //    _questionService = questionService;
+        //}
+
+        public IActionResult Index()
         {
-            _questionService = questionService;
+            return View();
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Tutor()
         {
-            var questions = await _questionService.GetAll();
-            return View(questions);
+            return View();
         }
     }
 }

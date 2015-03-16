@@ -1,88 +1,43 @@
-﻿@model IEnumerable<Tutor.Models.Question>
-@{
+﻿@{
     ViewBag.Title = "Chat";
 }
 <h2>Question</h2>
-<div class="container">
-    @*<input type="text" id="message" />*@
-    @*<input type="button" id="sendmessage" value="Send" />*@
-    <input type="hidden" id="displayname" />
-</div>
 
 <div class="container">
     <div class="row">
-        <form asp-controller="Tutor">
+        <form>
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Location" id="location"/>
+                <input type="text" class="form-control" placeholder="Name" id="displayname" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Location" id="location" />
             </div>
             <div class="form-group">
                 <textarea class="form-control" placeholder="Describe your problem" id="message"></textarea>
             </div>
-            <input type="button" class="btn btn-default" id="sendmessage" value="Send" />
+            <input class="btn btn-default" id="sendmessage" value="Send" />
         </form>
     </div>
 </div>
-<div class="container questions">
-    @foreach (var q in Model)
-    {
-        <div class="row">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <p class="col-xs-4">@q.Name</p>
-                    <p class="col-xs-4">@q.Description</p>
-                    <div class="pull-right"><button class="btn btn-danger right">Delete</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
+<div class="container questions"></div>
+
 @section scripts {
     <script id="question-template" type="text/x-handlebars-template">
-       <div class="row">
-           <div class="panel panel-default">
-               <div class="panel-body">
-                   <p class="col-xs-4">{{name}}</p>
-                   <p class="col-xs-4">{{place}}</p>
-                   <div class="pull-right"><button class="btn btn-danger right">Delete</button></div>
-               </div>
-           </div>
-       </div>
-</script>
+        <div class="row question-item">
+            <div class="panel {{PanelStyle}}">
+                <div class="panel-heading">
+                    <strong>{{Name}}</strong> - {{Location}}
+                    <a class="delete pull-right" data-id="{{Id}}">X</a>
+                </div>
+                <div class="panel-body">{{Description}}</div>
+            </div>
+        </div>
+    </script>
+
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var tutor = tutorModule.init();
+            tutor.loadMessages();
         });
     </script>
-    @*<script>
-        $(function () {
-            var source = $("#question-template").html();
-            var template = Handlebars.compile(source);
-            // Reference the auto-generated proxy for the hub.
-            var hub = $.connection.questionHub;
-            // Create a function that the hub can call back to display messages.
-            hub.client.broadcastQuestion = function (name, message, place) {
-                var context = { name: name, place: place };
-                // Add the message to the page.
-                var html = template(context);
-                $('.questions').prepend(html);
-            };
-
-            // Start the connection.
-            $.connection.hub.start().done(function() {
-                console.log('hub connection open');
-            });
-
-            // Get the user name and store it to prepend to messages.
-            $('#displayname').val(prompt('Enter your name:', ''));
-            // Set initial focus to message input box.
-            $('#message').focus();
-            $('#sendmessage').click(function() {
-                // Call the Send method on the hub.
-                $.post("/api/tutor", { Name: $('#displayname').val(), Description: $('#message').val(), Location: "foo", QuestionState: "Unaswered" }, function() { $('#message').val('').focus(); });
-                // Clear text box and reset focus for next comment.
-
-            });
-        });
-    </script>*@
 }

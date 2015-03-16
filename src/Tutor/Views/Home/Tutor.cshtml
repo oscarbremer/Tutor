@@ -1,0 +1,26 @@
+﻿<div class="container questions"></div>
+
+@section scripts {
+    <script id="question-template" type="text/x-handlebars-template">
+        <div class="row question-item">
+            <div class="panel {{PanelStyle}}">
+                <div class="panel-heading">
+                    <strong class="name">{{Name}}</strong> - <span class="location">{{Location}}</span>
+                </div>
+                <div class="panel-body description">{{Description}}</div>
+                <div class="panel-footer">
+                    <a class="btn btn-warning goto">Goto {{Location}}</a>
+                    <a class="btn btn-success done">Done</a>
+                    <a class="btn btn-danger delete" data-id="{{Id}}">Delete</a>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            var tutor = tutorModule.init();
+            tutor.loadMessages();
+        });
+    </script>
+}

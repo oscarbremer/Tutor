@@ -33,8 +33,9 @@ namespace Tutor.Controllers
         [HttpPost("~/api/tutor")]
         public async void Add(Question question)
         {
-             await _questionService.Add(question);
-            _hub.Clients.All.broadcastQuestion(question.Name, question.Description, question.Location);
+            question.QuestionState = QuestionState.Unaswered;
+            var id = await _questionService.Add(question);
+            _hub.Clients.All.broadcastQuestion(question.Name, question.Description, question.Location, id);
 
         }
 
@@ -42,6 +43,8 @@ namespace Tutor.Controllers
         public async void Delete(int id)
         {
             var deleted = await _questionService.TryDelete(id);
+            if(deleted)
+                _hub.Clients.All.questionDeleted(id);
         }
 
         [HttpPut("~/api/tutor")]

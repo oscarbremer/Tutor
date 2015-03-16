@@ -6,24 +6,24 @@ using Tutor.Models;
 
 namespace Tutor.Services
 {
-    public class QuestionService :IQuestionService
+    public class SyncQuestionService : IQuestionService
     {
         private readonly ApplicationDbContext _dbContext;
 
-        public QuestionService(ApplicationDbContext dbContext)
+        public SyncQuestionService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<Question>> GetAll()
         {
-            return await Task.FromResult(_dbContext.Questions.Select(y => y));
+            return _dbContext.Questions.Select(y => y);
         }
 
         public async Task<int> Add(Question question)
         {
             _dbContext.Questions.Add(question);
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SaveChanges();
             return question.Id;
         }
 
@@ -34,26 +34,23 @@ namespace Tutor.Services
 
         public async Task Update(Question question)
         {
-            var singleOrDefault = _dbContext.Questions.SingleOrDefaultAsync(y => y.Id == question.Id);
-            if (singleOrDefault != null)
+            var dbQuestion = _dbContext.Questions.SingleOrDefault(y => y.Id == question.Id);
+            if (dbQuestion != null)
             {
-                var dbQuestion = await singleOrDefault;
                 dbQuestion.Description = question.Description;
                 dbQuestion.Name = question.Name;
-                await _dbContext.SaveChangesAsync();
+                dbQuestion.QuestionState = question.QuestionState;
+                dbQuestion.Location = question.Location;
+                _dbContext.SaveChanges();
             }
         }
-
         public async Task<bool> TryDelete(int id)
         {
-            var singleOrDefault = _dbContext.Questions.SingleOrDefaultAsync(y => y.Id == id);
-            if (singleOrDefault == null)
-                return false;
-            var question = await singleOrDefault;
+            var question = _dbContext.Questions.SingleOrDefault(y => y.Id == id);
             if (question == null)
                 return false;
             _dbContext.Questions.Remove(question);
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SaveChanges();
             return true;
         }
     }
