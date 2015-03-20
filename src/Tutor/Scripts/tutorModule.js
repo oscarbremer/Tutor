@@ -7,6 +7,8 @@
         setupSignalR();
         setupHandlers();
         compileTemplates();
+        getCookie("username") === "" ? $(".question-data").hide() : $(".name-data").hide();
+        $("#displayname").val(getCookie("username"));
         return this;
     }
 
@@ -19,7 +21,14 @@
     }
 
     var onBroadcastQuestion = function (name, description, location, id) {
-        var context = { Name: name, Location: location, Description: description, Id: id, PanelStyle: 'panel-default' };
+        var context = {
+            Name: name,
+            Location: location,
+            Description: description,
+            Id: id,
+            PanelStyle: 'panel-default',
+            canDelete: getCookie("username") === name
+        };
         var html = template(context);
         $('.questions').prepend(html);
     }
@@ -32,15 +41,16 @@
     var onUpdatedQuestion = function (model) {
         var questionPanel = $('[data-id=' + model.Id + ']').closest('.question-item').find('.panel');
         if (model.QuestionState === 1)//InProgress
-            questionPanel.removeClass('panel-default').addClass('panel-warning');
+            questionPanel.removeClass('panel-default, panel-success').addClass('panel-warning');
         if (model.QuestionState === 2)//Answered
-            questionPanel.removeClass('panel-default').addClass('panel-success');
+            questionPanel.removeClass('panel-default, panel-warning').addClass('panel-success');
     }
 
     var setupHandlers = function () {
         $('#sendmessage').on('click', sendMessage);
         $('body').on('click', '.delete', deleteMessage);
         $('body').on('click', '.goto, .done', updateMessage);
+        $('#saveName').on('click', saveName);
     }
 
     var compileTemplates = function () {
@@ -58,6 +68,7 @@
                     item.PanelStyle = 'panel-warning';
                 if (item.QuestionState === 2) //Answered
                     item.PanelStyle = 'panel-success';
+                item.canDelete = getCookie("username") === item.Name;
                 var html = template(item);
                 container.prepend(html);
             }
@@ -65,7 +76,8 @@
     }
 
     var sendMessage = function () {
-        var data = { Name: $('#displayname').val(), Description: $('#message').val(), Location: $('#location').val() };
+        var userName = getCookie("username");
+        var data = { Name: userName, Description: $('#message').val(), Location: $('#location').val() };
         $.post(url, data);
     }
 
@@ -92,6 +104,23 @@
             type: 'PUT',
             data: { id: id, name: name, location: location, description: description, questionstate: state }
         });
+    }
+
+    var saveName = function (e) {
+        document.cookie = "username=" + $('#displayname').val();
+        $(".name-data").slideUp();
+        $(".question-data").slideDown();
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        }
+        return "";
     }
 
     return {
